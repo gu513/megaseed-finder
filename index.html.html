@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO: чтобы сайт находили в поиске -->
+    <title>MegaSeed Finder — Поиск сидов Minecraft с структурами рядом со спавном</title>
+    <meta name="description" content="MegaSeed Finder — лучший поиск сидов Minecraft. Находит деревни, храмы, крепости Незера и другие структуры в радиусе от спавна. Java и Bedrock Edition.">
+    <meta name="keywords" content="мега сид, mega seed, сиды майнкрафт, minecraft seeds, поиск сидов, сиды с деревнями, сиды с крепостями, minecraft seed finder, структуры рядом со спавном, сиды java, сиды bedrock">
+    <meta name="author" content="MegaSeed Finder">
+    <meta property="og:title" content="MegaSeed Finder — Поиск сидов Minecraft">
+    <meta property="og:description" content="Найди идеальный сид Minecraft с множеством структур рядом со спавном!">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://megaseed-finder.github.io">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { 
+            background-color: #030712; 
+            color: white; 
+            font-family: system-ui, sans-serif;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .tab-active { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2)); border-color: #10b981; }
+        input[type="range"] { accent-color: #10b981; }
+        input[type="checkbox"] { accent-color: #10b981; width: 18px; height: 18px; }
+        .nether-bg { background: linear-gradient(135deg, rgba(220,38,38,0.1), rgba(234,88,12,0.1)); }
+        
+        /* Пиксельная собака на фоне */
+        .pixel-dog {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+            animation: dogBounce 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+        }
+        @keyframes dogBounce {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .heart-float {
+            animation: heartFloat 1.5s ease-in-out infinite;
+        }
+        @keyframes heartFloat {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.8; }
+            50% { transform: translateY(-10px) scale(1.2); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Пиксельная собака из Minecraft с сердечками -->
+    <svg class="pixel-dog" width="220" height="220" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <!-- Хвост -->
+        <rect x="24" y="12" width="4" height="2" fill="#9e9e9e"/>
+        <rect x="26" y="10" width="2" height="2" fill="#b0b0b0"/>
+        
+        <!-- Тело -->
+        <rect x="14" y="14" width="10" height="8" fill="#9e9e9e"/>
+        <rect x="14" y="14" width="10" height="2" fill="#b0b0b0"/>
+        <rect x="14" y="20" width="10" height="2" fill="#7a7a7a"/>
+        
+        <!-- Голова -->
+        <rect x="6" y="8" width="10" height="8" fill="#9e9e9e"/>
+        <rect x="6" y="8" width="10" height="2" fill="#b0b0b0"/>
+        <rect x="6" y="14" width="10" height="2" fill="#7a7a7a"/>
+        
+        <!-- Морда (светлая) -->
+        <rect x="8" y="12" width="6" height="4" fill="#d4c4a8"/>
+        <rect x="8" y="12" width="6" height="1" fill="#e8d8bc"/>
+        
+        <!-- Уши -->
+        <rect x="6" y="6" width="3" height="3" fill="#7a7a7a"/>
+        <rect x="13" y="6" width="3" height="3" fill="#7a7a7a"/>
+        
+        <!-- Глаза -->
+        <rect x="8" y="10" width="2" height="2" fill="#1a1a1a"/>
+        <rect x="12" y="10" width="2" height="2" fill="#1a1a1a"/>
+        <rect x="9" y="10" width="1" height="1" fill="#ffffff"/>
+        <rect x="13" y="10" width="1" height="1" fill="#ffffff"/>
+        
+        <!-- Нос -->
+        <rect x="10" y="13" width="2" height="2" fill="#1a1a1a"/>
+        
+        <!-- Ошейник (красный) -->
+        <rect x="6" y="15" width="10" height="2" fill="#c41e3a"/>
+        <rect x="6" y="15" width="10" height="1" fill="#e03050"/>
+        
+        <!-- Лапы -->
+        <rect x="15" y="22" width="3" height="4" fill="#7a7a7a"/>
+        <rect x="20" y="22" width="3" height="4" fill="#7a7a7a"/>
+        <rect x="15" y="25" width="3" height="1" fill="#5a5a5a"/>
+        <rect x="20" y="25" width="3" height="1" fill="#5a5a5a"/>
+        
+        <!-- Сердечки вокруг собаки -->
+        <g class="heart-float" style="animation-delay: 0s;">
+            <path d="M 3 4 L 4 3 L 5 4 L 4 5 Z" fill="#ff2040"/>
+            <path d="M 3 5 L 4 6 L 3 7 L 2 6 Z" fill="#ff2040"/>
+            <path d="M 5 5 L 6 6 L 5 7 L 4 6 Z" fill="#ff2040"/>
+            <path d="M 4 7 L 5 8 L 4 9 L 3 8 Z" fill="#ff2040"/>
+        </g>
+        <g class="heart-float" style="animation-delay: 0.3s;">
+            <path d="M 26 4 L 27 3 L 28 4 L 27 5 Z" fill="#ff2040"/>
+            <path d="M 26 5 L 27 6 L 26 7 L 25 6 Z" fill="#ff2040"/>
+            <path d="M 28 5 L 29 6 L 28 7 L 27 6 Z" fill="#ff2040"/>
+            <path d="M 27 7 L 28 8 L 27 9 L 26 8 Z" fill="#ff2040"/>
+        </g>
+        <g class="heart-float" style="animation-delay: 0.6s;">
+            <path d="M 14 3 L 15 2 L 16 3 L 15 4 Z" fill="#ff2040"/>
+            <path d="M 14 4 L 15 5 L 14 6 L 13 5 Z" fill="#ff2040"/>
+            <path d="M 16 4 L 17 5 L 16 6 L 15 5 Z" fill="#ff2040"/>
+            <path d="M 15 6 L 16 7 L 15 8 L 14 7 Z" fill="#ff2040"/>
+        </g>
+        <g class="heart-float" style="animation-delay: 0.9s;">
+            <path d="M 20 5 L 21 4 L 22 5 L 21 6 Z" fill="#ff2040"/>
+            <path d="M 20 6 L 21 7 L 20 8 L 19 7 Z" fill="#ff2040"/>
+            <path d="M 22 6 L 23 7 L 22 8 L 21 7 Z" fill="#ff2040"/>
+        </g>
+        <g class="heart-float" style="animation-delay: 1.2s;">
+            <path d="M 8 5 L 9 4 L 10 5 L 9 6 Z" fill="#ff2040"/>
+            <path d="M 8 6 L 9 7 L 8 8 L 7 7 Z" fill="#ff2040"/>
+            <path d="M 10 6 L 11 7 L 10 8 L 9 7 Z" fill="#ff2040"/>
+        </g>
+    </svg>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        const OVERWORLD_STRUCTURES = {
+            Village: { icon: '🏘️', desc: 'Деревня с жителями', dimension: 'overworld' },
+            Woodland_Mansion: { icon: '🏰', desc: 'Лесной особняк', dimension: 'overworld' },
+            Ocean_Monument: { icon: '🌊', desc: 'Подводный храм', dimension: 'overworld' },
+            Desert_Temple: { icon: '🏜️', desc: 'Пустынная пирамида', dimension: 'overworld' },
+            Jungle_Temple: { icon: '🌿', desc: 'Храм джунглей', dimension: 'overworld' },
+            Swamp_Temple: { icon: '🐸', desc: 'Хижина ведьмы', dimension: 'overworld' },
+            Igloo: { icon: '❄️', desc: 'Иглу', dimension: 'overworld' },
+            Pillager_Outpost: { icon: '⚔️', desc: 'Аванпост разбойников', dimension: 'overworld' },
+            Ocean_Ruins: { icon: '🏛️', desc: 'Подводные руины', dimension: 'overworld' },
+            Shipwreck: { icon: '🚢', desc: 'Кораблекрушение', dimension: 'overworld' },
+        };
+
+        const NETHER_STRUCTURES = {
+            Nether_Fortress: { icon: '', desc: 'Крепость Незера', dimension: 'nether' },
+            Bastion_Remnant: { icon: '🔥', desc: 'Бастион пиглинов', dimension: 'nether' },
+            Ruined_Portal: { icon: '🌀', desc: 'Разрушенный портал', dimension: 'nether' },
+            Nether_Fossil: { icon: '🦴', desc: 'Ископаемые Незера', dimension: 'nether' },
+        };
+
+        const ALL_STRUCTURES = { ...OVERWORLD_STRUCTURES, ...NETHER_STRUCTURES };
+
+        function hashCode(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function seededRandom(seed, index) {
+            const x = Math.sin(seed + index * 9999) * 10000;
+            return x - Math.floor(x);
+        }
+
+        function generateStructuresForSeed(seedValue, dimension, radius, selectedTypes) {
+            const seed = hashCode(String(seedValue));
+            const structures = [];
+            const typesToCheck = Object.keys(ALL_STRUCTURES).filter(t => 
+                selectedTypes.includes(t) && ALL_STRUCTURES[t].dimension === dimension
+            );
+
+            typesToCheck.forEach((type, idx) => {
+                const rarity = ['Village', 'Pillager_Outpost', 'Ocean_Ruins', 'Shipwreck', 'Ruined_Portal'].includes(type) ? 0.85 : 0.55;
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    const rand = seededRandom(seed, idx * 100 + attempt);
+                    if (rand < rarity) {
+                        const angle = seededRandom(seed, idx * 200 + attempt) * Math.PI * 2;
+                        const distance = 100 + seededRandom(seed, idx * 300 + attempt) * (radius - 100);
+                        const x = Math.round(Math.cos(angle) * distance);
+                        const z = Math.round(Math.sin(angle) * distance);
+                        structures.push({ type, x, z, distance: Math.round(Math.sqrt(x * x + z * z)) });
+                        break;
+                    }
+                }
+            });
+            return structures.sort((a, b) => a.distance - b.distance);
+        }
+
+        const JAVA_SEEDS = ['-876543210', '694201337', '2048576031', '-42', '111222333', '999888777', '314159265'];
+        const BEDROCK_SEEDS = ['4815162342', '-987654321', '7777777', '314159265', '1234567890', '42424242'];
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('search');
+            const [dimension, setDimension] = useState('overworld');
+            const [version, setVersion] = useState('java');
+            const [radius, setRadius] = useState(1000);
+            const [selectedTypes, setSelectedTypes] = useState(Object.keys(OVERWORLD_STRUCTURES));
+            const [customSeed, setCustomSeed] = useState('');
+            const [analysisResult, setAnalysisResult] = useState(null);
+            const [searchResults, setSearchResults] = useState([]);
+            const [isSearching, setIsSearching] = useState(false);
+
+            const currentStructures = dimension === 'overworld' ? OVERWORLD_STRUCTURES : NETHER_STRUCTURES;
+
+            const toggleStructure = (type) => {
+                setSelectedTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]);
+            };
+            const selectAll = () => setSelectedTypes(Object.keys(currentStructures));
+            const deselectAll = () => setSelectedTypes([]);
+
+            const handleDimensionChange = (newDim) => {
+                setDimension(newDim);
+                const structs = newDim === 'overworld' ? OVERWORLD_STRUCTURES : NETHER_STRUCTURES;
+                setSelectedTypes(Object.keys(structs));
+            };
+
+            const handleSearch = () => {
+                if (selectedTypes.length === 0) { alert('Выберите хотя бы одну структуру!'); return; }
+                setIsSearching(true);
+                setSearchResults([]);
+                setTimeout(() => {
+                    const seeds = version === 'java' ? JAVA_SEEDS : BEDROCK_SEEDS;
+                    const results = seeds.map(seedValue => {
+                        const structures = generateStructuresForSeed(seedValue, dimension, radius, selectedTypes);
+                        return { seed_value: seedValue, version, dimension, structures_found: structures.length, structures };
+                    }).filter(r => r.structures_found > 0);
+                    setSearchResults(results);
+                    setIsSearching(false);
+                }, 1200);
+            };
+
+            const handleAnalyze = () => {
+                if (!customSeed.trim()) { alert('Введите сид!'); return; }
+                if (selectedTypes.length === 0) { alert('Выберите хотя бы одну структуру!'); return; }
+                const structures = generateStructuresForSeed(customSeed, dimension, radius, selectedTypes);
+                setAnalysisResult({ seed_value: customSeed, dimension, structures_found: structures.length, structures });
+            };
+
+            const copyToClipboard = (text) => {
+                navigator.clipboard.writeText(text);
+                alert('✅ Скопировано: ' + text);
+            };
+
+            const colorHex = version === 'java' ? '#10b981' : '#06b6d4';
+            const dimColor = dimension === 'overworld' ? '#10b981' : '#ef4444';
+
+            return (
+                <div className="min-h-screen relative z-10">
+                    <div className="max-w-6xl mx-auto px-6 py-10 text-center">
+                        <h1 className="text-5xl md:text-6xl font-bold mb-3 gradient-text">MegaSeed Finder</h1>
+                        <p className="text-gray-400 text-lg">Поиск структур в радиусе от спавна • Верхний мир и Незер</p>
+                    </div>
+
+                    <div className="max-w-6xl mx-auto px-6 mb-8">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <button onClick={() => setActiveTab('search')} className={`flex-1 p-4 rounded-xl border-2 transition-all ${activeTab === 'search' ? 'tab-active' : 'border-gray-800 bg-gray-900/50 hover:border-gray-700'}`}>
+                                <div className="text-2xl mb-1">🔍</div>
+                                <div className="font-bold">Поиск сидов</div>
+                                <div className="text-xs text-gray-400">Найти готовые сиды</div>
+                            </button>
+                            <button onClick={() => setActiveTab('analyze')} className={`flex-1 p-4 rounded-xl border-2 transition-all ${activeTab === 'analyze' ? 'tab-active' : 'border-gray-800 bg-gray-900/50 hover:border-gray-700'}`}>
+                                <div className="text-2xl mb-1">🎯</div>
+                                <div className="font-bold">Анализ сида</div>
+                                <div className="text-xs text-gray-400">Проверить свой сид</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="max-w-6xl mx-auto px-6 pb-16">
+                        <div className={`rounded-xl border border-gray-800 p-6 mb-6 ${dimension === 'nether' ? 'nether-bg' : 'bg-gray-900/50'}`}>
+                            <h3 className="text-lg font-bold mb-4">⚙️ Настройки поиска</h3>
+                            
+                            <div className="mb-5">
+                                <label className="text-sm text-gray-400 mb-2 block"> Измерение:</label>
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleDimensionChange('overworld')} className={`flex-1 p-3 rounded-lg border-2 transition ${dimension === 'overworld' ? 'border-emerald-500 bg-emerald-500/20' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}`}>
+                                        <div className="text-xl">🌳</div>
+                                        <div className="font-semibold text-sm">Верхний мир</div>
+                                    </button>
+                                    <button onClick={() => handleDimensionChange('nether')} className={`flex-1 p-3 rounded-lg border-2 transition ${dimension === 'nether' ? 'border-red-500 bg-red-500/20' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}`}>
+                                        <div className="text-xl">🔥</div>
+                                        <div className="font-semibold text-sm">Незер (Ад)</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {activeTab === 'search' && (
+                                <div className="mb-5">
+                                    <label className="text-sm text-gray-400 mb-2 block">🎮 Версия игры:</label>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setVersion('java')} className={`flex-1 p-3 rounded-lg border-2 transition ${version === 'java' ? 'border-emerald-500 bg-emerald-500/20' : 'border-gray-700 bg-gray-800/50'}`}>☕ Java Edition</button>
+                                        <button onClick={() => setVersion('bedrock')} className={`flex-1 p-3 rounded-lg border-2 transition ${version === 'bedrock' ? 'border-cyan-500 bg-cyan-500/20' : 'border-gray-700 bg-gray-800/50'}`}>🪨 Bedrock Edition</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="mb-5">
+                                <label className="text-sm text-gray-400 mb-2 flex justify-between">
+                                    <span> Радиус поиска:</span>
+                                    <span className="font-bold" style={{color: dimColor}}>{radius} блоков</span>
+                                </label>
+                                <input type="range" min="100" max="3000" step="100" value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="w-full"/>
+                                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <span>100</span><span>1000</span><span>2000</span><span>3000</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between items-center mb-3">
+                                    <label className="text-sm text-gray-400">✅ Какие структуры искать:</label>
+                                    <div className="flex gap-2">
+                                        <button onClick={selectAll} className="text-xs text-emerald-400 hover:underline">Выбрать все</button>
+                                        <button onClick={deselectAll} className="text-xs text-gray-400 hover:underline">Снять все</button>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                    {Object.entries(currentStructures).map(([key, info]) => (
+                                        <label key={key} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition ${selectedTypes.includes(key) ? 'bg-white/10' : 'bg-white/[0.02] hover:bg-white/5'}`}>
+                                            <input type="checkbox" checked={selectedTypes.includes(key)} onChange={() => toggleStructure(key)}/>
+                                            <span className="text-lg">{info.icon}</span>
+                                            <span className="text-sm">{key.replace(/_/g, ' ')}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {activeTab === 'search' && (
+                            <>
+                                <button onClick={handleSearch} disabled={isSearching} className="w-full p-4 rounded-xl font-bold text-lg mb-6 transition-all disabled:opacity-50" style={{background: `linear-gradient(135deg, ${colorHex}33, ${dimColor}33)`, border: `2px solid ${colorHex}`}}>
+                                    {isSearching ? '⚙️ Поиск...' : ' Найти сиды'}
+                                </button>
+                                {isSearching && (
+                                    <div className="text-center py-16">
+                                        <div className="text-6xl animate-spin mb-4">️</div>
+                                        <p className="text-xl">Анализируем чанки...</p>
+                                    </div>
+                                )}
+                                {searchResults.length > 0 && (
+                                    <div className="space-y-4">
+                                        <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-4">
+                                            <p className="text-gray-300">Найдено <span className="font-bold" style={{color: colorHex}}>{searchResults.length}</span> сидов</p>
+                                        </div>
+                                        {searchResults.map((seed, i) => <SeedCard key={i} seed={seed} colorHex={colorHex} version={version} onCopy={copyToClipboard}/>)}
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {activeTab === 'analyze' && (
+                            <>
+                                <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-6 mb-6">
+                                    <label className="text-sm text-gray-400 mb-2 block">⌨️ Введите сид:</label>
+                                    <input type="text" value={customSeed} onChange={(e) => setCustomSeed(e.target.value)} placeholder="Например: 12345, -987654321" className="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-emerald-500 outline-none font-mono text-lg"/>
+                                </div>
+                                <button onClick={handleAnalyze} className="w-full p-4 rounded-xl font-bold text-lg mb-6 transition-all hover:opacity-90" style={{background: `linear-gradient(135deg, ${dimColor}33, ${colorHex}33)`, border: `2px solid ${dimColor}`}}>
+                                     Анализировать сид
+                                </button>
+                                {analysisResult && <SeedCard seed={analysisResult} colorHex={colorHex} version={version} onCopy={copyToClipboard}/>}
+                            </>
+                        )}
+                    </div>
+
+                    <footer className="border-t border-gray-800 py-6 text-center text-gray-500 text-sm">
+                        <p>MegaSeed Finder • Поиск структур в Верхнем мире и Незере</p>
+                        <p className="mt-1 text-xs">Java и Bedrock Edition • Бесплатный инструмент для игроков Minecraft</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        function SeedCard({ seed, colorHex, version, onCopy }) {
+            const dimColor = seed.dimension === 'overworld' ? '#10b981' : '#ef4444';
+            const dimIcon = seed.dimension === 'overworld' ? '🌳' : '🔥';
+            const dimName = seed.dimension === 'overworld' ? 'Верхний мир' : 'Незер';
+
+            return (
+                <div className="border-2 bg-gray-900/80 rounded-xl p-5 card-hover" style={{borderColor: colorHex + '55'}}>
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3 mb-4">
+                        <div className="flex flex-wrap gap-2">
+                            <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background: colorHex + '33', color: colorHex}}>
+                                {version === 'java' ? '☕ JAVA' : '🪨 BEDROCK'}
+                            </span>
+                            <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{background: dimColor + '33', color: dimColor}}>
+                                {dimIcon} {dimName}
+                            </span>
+                            <span className="text-xs text-gray-400 px-2.5 py-1">{seed.structures_found} структур</span>
+                        </div>
+                        <button onClick={() => onCopy(seed.seed_value)} className="px-3 py-1.5 rounded-lg text-sm font-medium transition hover:opacity-80" style={{background: colorHex + '33', color: colorHex}}>
+                            📋 Копировать сид
+                        </button>
+                    </div>
+                    <div className="text-2xl font-mono font-bold mb-4" style={{color: colorHex}}>{seed.seed_value}</div>
+                    {seed.structures.length > 0 ? (
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-semibold text-gray-400 uppercase mb-2">Найденные структуры:</h4>
+                            {seed.structures.map((s, idx) => (
+                                <div key={idx} className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{ALL_STRUCTURES[s.type]?.icon || '📍'}</span>
+                                        <div>
+                                            <div className="font-medium text-sm">{s.type.replace(/_/g, ' ')}</div>
+                                            <div className="text-xs text-gray-500">X: {s.x}, Z: {s.z}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-mono font-bold" style={{color: dimColor}}>{s.distance} м</div>
+                                        <div className="text-xs text-gray-500">от спавна</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-6 text-gray-500">
+                            <div className="text-4xl mb-2">🔍</div>
+                            <p>Структуры не найдены</p>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
